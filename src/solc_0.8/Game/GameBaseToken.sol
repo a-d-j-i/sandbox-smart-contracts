@@ -6,8 +6,11 @@ import "../common/BaseWithStorage/WithMinter.sol";
 import "../common/interfaces/IAssetToken.sol";
 import "../common/interfaces/IGameToken.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "../common/Libraries/TileWithCoordLib.sol";
+import "../common/Libraries/MapLib.sol";
 
 contract GameBaseToken is ImmutableERC721, WithMinter, Initializable, IGameToken {
+    using MapLib for MapLib.Map;
     ///////////////////////////////  Data //////////////////////////////
 
     IAssetToken internal _asset;
@@ -20,6 +23,7 @@ contract GameBaseToken is ImmutableERC721, WithMinter, Initializable, IGameToken
 
     mapping(uint256 => bytes32) private _metaData;
     mapping(address => mapping(address => bool)) private _gameEditors;
+    mapping(uint256 => MapLib.Map) private template;
     ///////////////////////////////  Events //////////////////////////////
 
     /// @dev Emits when a game is updated.
@@ -296,6 +300,10 @@ contract GameBaseToken is ImmutableERC721, WithMinter, Initializable, IGameToken
     /// @return if the interface is supported.
     function supportsInterface(bytes4 id) public pure override returns (bool) {
         return id == 0x01ffc9a7 || id == 0x80ac58cd || id == 0x5b5e139f;
+    }
+
+    function getTemplate(uint256 gameId) external view returns (TileWithCoordLib.TileWithCoord[] memory) {
+        return template[gameId].getMap();
     }
 
     /// @notice Add assets to an existing GAME.

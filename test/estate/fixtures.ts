@@ -8,6 +8,7 @@ import {withSnapshot} from '../utils';
 import {BigNumber, BigNumberish, Contract, ContractReceipt} from 'ethers';
 import {expect} from '../chai-setup';
 import {tileWithCoordToJS} from '../map/fixtures';
+import {DeployResult} from 'hardhat-deploy/types';
 
 export const setupEstate = withSnapshot(
   [
@@ -77,7 +78,10 @@ export const setupEstate = withSnapshot(
   }
 );
 
-async function setupEstateAndLand(gameContract?: Contract) {
+async function setupEstateAndLand(
+  mapLib: DeployResult,
+  gameContract?: Contract
+) {
   const {deployer} = await getNamedAccounts();
   const [
     upgradeAdmin,
@@ -109,7 +113,7 @@ async function setupEstateAndLand(gameContract?: Contract) {
 
   // Estate
   const chainIndex = 100;
-  let args, contract;
+  let args, contract, libraries;
   if (gameContract) {
     contract = 'PolygonEstateTokenV1';
     args = [
@@ -119,6 +123,19 @@ async function setupEstateAndLand(gameContract?: Contract) {
       gameContract.address,
       chainIndex,
     ];
+    const estateGameRecordLib = await deployments.deploy(
+      'EstateGameRecordLib',
+      {
+        from: deployer,
+        libraries: {
+          MapLib: mapLib.address,
+        },
+      }
+    );
+    libraries = {
+      MapLib: mapLib.address,
+      EstateGameRecordLib: estateGameRecordLib.address,
+    };
   } else {
     contract = 'EstateTokenV1';
     args = [
@@ -127,14 +144,14 @@ async function setupEstateAndLand(gameContract?: Contract) {
       landContract.address,
       chainIndex,
     ];
+    libraries = {
+      MapLib: mapLib.address,
+    };
   }
-  const mapLib = await deployments.deploy('MapLib', {from: deployer});
   await deployments.deploy('Estate', {
     from: deployer,
     contract,
-    libraries: {
-      MapLib: mapLib.address,
-    },
+    libraries,
     proxy: {
       owner: upgradeAdmin,
       proxyContract: 'OpenZeppelinTransparentProxy',
@@ -227,7 +244,9 @@ async function setupEstateAndLand(gameContract?: Contract) {
 }
 
 export const setupL1EstateAndLand = withSnapshot([], async () => {
-  const setup = await setupEstateAndLand();
+  const {deployer} = await getNamedAccounts();
+  const mapLib = await deployments.deploy('MapLib', {from: deployer});
+  const setup = await setupEstateAndLand(mapLib);
   return {
     ...setup,
     createEstate: async (
@@ -300,15 +319,19 @@ export const setupL1EstateAndLand = withSnapshot([], async () => {
 });
 export const setupL2EstateGameAndLand = withSnapshot([], async () => {
   const {deployer} = await getNamedAccounts();
+  const mapLib = await deployments.deploy('MapLib', {from: deployer});
   // Fake Game
-  await deployments.deploy('ERC721Mintable', {
+  await deployments.deploy('MockGameToken', {
     from: deployer,
     args: ['FAKEGAME', 'FAKEGAME'],
+    libraries: {
+      MapLib: mapLib.address,
+    },
   });
-  const gameContract = await ethers.getContract('ERC721Mintable', deployer);
-  const setup = await setupEstateAndLand(gameContract);
+  const gameContract = await ethers.getContract('MockGameToken', deployer);
+  const setup = await setupEstateAndLand(mapLib, gameContract);
   const gameContractAsOther = await ethers.getContract(
-    'ERC721Mintable',
+    'MockGameToken',
     setup.other
   );
   return {
@@ -498,10 +521,17 @@ export const setupL2EstateGameAndLand = withSnapshot([], async () => {
 export const setupEstateGameRecordLibTest = withSnapshot([], async () => {
   const {deployer} = await getNamedAccounts();
   const mapLib = await deployments.deploy('MapLib', {from: deployer});
+  const estateGameRecordLib = await deployments.deploy('EstateGameRecordLib', {
+    from: deployer,
+    libraries: {
+      MapLib: mapLib.address,
+    },
+  });
   await deployments.deploy('EstateGameRecordLibTester', {
     from: deployer,
     libraries: {
       MapLib: mapLib.address,
+      EstateGameRecordLib: estateGameRecordLib.address,
     },
   });
   const tester = await ethers.getContract(

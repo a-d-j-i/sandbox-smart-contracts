@@ -63,6 +63,7 @@ describe('Estate test with maps and games on layer 2', function () {
           );
           await gameContractAsOther.mint(other, gameId);
           await gameContractAsOther.approve(estateContract.address, gameId);
+          await gameContractAsOther.setQuad(gameId, 0, 0, 24);
 
           const quadId = await mintQuad(other, 24, 0, 0);
           await landContractAsOther.setApprovalForAllFor(
@@ -75,11 +76,12 @@ describe('Estate test with maps and games on layer 2', function () {
             gameData: [
               {
                 gameId,
-                quadsToAdd: getXsYsSizes(24, 24, 24),
+                quadsToAdd: {sizes: [], xs: [], ys: []}, // getXsYsSizes(24, 24, 24),
                 quadsToUse: getXsYsSizes(0, 0, 24),
               },
             ],
           });
+
           console.log(
             `create ${cant} quads and ${size}x${size} estate with that, GAS USED: `,
             gasUsed.toString()
@@ -126,6 +128,7 @@ describe('Estate test with maps and games on layer 2', function () {
           );
           await gameContractAsOther.mint(other, gameId);
           await gameContractAsOther.approve(estateContract.address, gameId);
+          await gameContractAsOther.setQuad(gameId, 0, 0, 24);
 
           const quadId = await mintQuad(other, 24, 0, 0);
           await landContractAsOther.setApprovalForAllFor(
@@ -138,7 +141,7 @@ describe('Estate test with maps and games on layer 2', function () {
             gameData: [
               {
                 gameId,
-                quadsToAdd: getXsYsSizes(24, 24, 24),
+                quadsToAdd: {sizes: [], xs: [], ys: []}, // getXsYsSizes(24, 24, 24),
                 quadsToUse: getXsYsSizes(0, 0, 24),
               },
             ],
@@ -344,6 +347,12 @@ describe('Estate test with maps and games on layer 2', function () {
       for (let gameId = 1; gameId <= cant; gameId++) {
         await gameContractAsOther.mint(other, gameId);
         await gameContractAsOther.approve(estateContract.address, gameId);
+        await gameContractAsOther.setQuad(
+          gameId,
+          gameId % 24,
+          Math.floor(gameId / 24),
+          1
+        );
         gameIds.push(gameId);
       }
 

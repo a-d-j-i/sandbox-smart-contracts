@@ -27,12 +27,21 @@ const func: DeployFunction = async function (
     log: true,
     skipIfAlreadyDeployed: true,
   });
+  const estateGameRecordLib = await deployments.deploy('EstateGameRecordLib', {
+    from: deployer,
+    libraries: {
+      MapLib: mapLib.address,
+    },
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
   await deploy('EstateToken', {
     from: deployer,
     contract: 'PolygonEstateTokenV1',
     log: true,
     libraries: {
       MapLib: mapLib.address,
+      EstateGameRecordLib: estateGameRecordLib.address,
     },
     proxy: {
       owner: upgradeAdmin,

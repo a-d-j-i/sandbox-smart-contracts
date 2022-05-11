@@ -9,10 +9,18 @@ const func: DeployFunction = async function (hre) {
   const TRUSTED_FORWARDER = await deployments.get('TRUSTED_FORWARDER');
   const chainIndex = 1; // L2 (Polygon). Use 0 for Ethereum-Mainnet.
 
+  const mapLib = await deployments.deploy('MapLib', {
+    from: deployer,
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
   await deploy('ChildGameToken', {
     from: deployer,
     contract: 'ChildGameTokenV1',
     log: true,
+    libraries: {
+      MapLib: mapLib.address,
+    },
     proxy: {
       owner: upgradeAdmin,
       proxyContract: 'OpenZeppelinTransparentProxy',

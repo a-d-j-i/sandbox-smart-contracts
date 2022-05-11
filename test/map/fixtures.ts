@@ -17,10 +17,17 @@ export const setupTileWithCoordsLibTest = withSnapshot([], async () => {
 export const setupMapTest = withSnapshot([], async () => {
   const {deployer} = await getNamedAccounts();
   const mapLib = await deployments.deploy('MapLib', {from: deployer});
+  const estateGameRecordLib = await deployments.deploy('EstateGameRecordLib', {
+    from: deployer,
+    libraries: {
+      MapLib: mapLib.address,
+    },
+  });
   await deployments.deploy('MapTester', {
     from: deployer,
     libraries: {
       MapLib: mapLib.address,
+      EstateGameRecordLib: estateGameRecordLib.address,
     },
   });
   const tester = await ethers.getContract('MapTester', deployer);

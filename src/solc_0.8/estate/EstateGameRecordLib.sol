@@ -17,16 +17,16 @@ library EstateGameRecordLib {
         mapping(uint256 => uint256) indexes;
     }
 
-    function contains(Games storage self, uint256 gameId) internal view returns (bool) {
+    function contains(Games storage self, uint256 gameId) public view returns (bool) {
         return (self.indexes[gameId] != 0);
     }
 
-    function getMap(Games storage self, uint256 gameId) internal view returns (MapLib.Map storage map) {
+    function getMap(Games storage self, uint256 gameId) public view returns (MapLib.Map storage map) {
         require(self.indexes[gameId] != 0, "invalid gameId");
         return self.values[self.indexes[gameId] - 1].map;
     }
 
-    function createGame(Games storage self, uint256 gameId) internal returns (bool) {
+    function createGame(Games storage self, uint256 gameId) public returns (bool) {
         if (self.indexes[gameId] != 0) {
             // already exists
             return false;
@@ -37,7 +37,7 @@ library EstateGameRecordLib {
         return true;
     }
 
-    function deleteGame(Games storage self, uint256 gameId) internal returns (bool) {
+    function deleteGame(Games storage self, uint256 gameId) public returns (bool) {
         uint256 idx = self.indexes[gameId];
         if (idx == 0) {
             return false;
@@ -58,15 +58,16 @@ library EstateGameRecordLib {
         return true;
     }
 
-    function length(Games storage self) internal view returns (uint256) {
+    function length(Games storage self) public view returns (uint256) {
         return self.values.length;
     }
 
-    function isEmpty(Games storage self) internal view returns (bool) {
+    function isEmpty(Games storage self) public view returns (bool) {
         return self.values.length == 0;
     }
 
-    function getGameIdAt(Games storage self, uint256 idx) internal view returns (uint256) {
+    function getGameIdAt(Games storage self, uint256 idx) public view returns (uint256) {
         return self.values[idx].gameId;
     }
+
 }
