@@ -205,6 +205,7 @@ describe('Estate test with maps and games on layer 2', function () {
       );
       await gameContractAsOther.mint(other, gameId);
       await gameContractAsOther.approve(estateContract.address, gameId);
+      await gameContractAsOther.setQuad(gameId, 24, 24, 24);
 
       await mintQuad(other, 24, 0, 0);
 
@@ -226,6 +227,7 @@ describe('Estate test with maps and games on layer 2', function () {
       const gameId2 = 456;
       await gameContractAsOther.mint(other, gameId2);
       await gameContractAsOther.approve(estateContract.address, gameId2);
+      await gameContractAsOther.setQuad(gameId2, 144, 144, 24);
 
       const {updateEstateId, updateGasUsed} = await updateEstate({
         estateId: estateId,

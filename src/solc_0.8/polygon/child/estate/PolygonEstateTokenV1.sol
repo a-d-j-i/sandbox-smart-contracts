@@ -44,11 +44,7 @@ contract PolygonEstateTokenV1 is EstateBaseToken, Initializable, IPolygonEstateT
         return storageId;
     }
 
-    function updateEstate(address from, UpdateEstateData calldata data)
-        external
-        override
-        returns (uint256)
-    {
+    function updateEstate(address from, UpdateEstateData calldata data) external override returns (uint256) {
         uint256 newId;
         uint256 storageId;
         (newId, storageId) = _updateLandsEstate(from, data.estateId, data.freeLandToAdd, data.newUri);
@@ -136,48 +132,48 @@ contract PolygonEstateTokenV1 is EstateBaseToken, Initializable, IPolygonEstateT
     }
 
     // TODO: Is is ok to throw here ? Do we get only 10000 gas ? What about reentrancy attacks to Land, Game or us ?
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 id,
-        bytes calldata data
-    ) public override returns (bytes4) {
-        if (msg.sender == address(gameToken)) {
-            uint256 estateId = abi.decode(data, (uint256));
-            _addGameWithTemplateToEstate(estateId, id);
-        }
-        // TODO: emit something.
-        return EstateBaseToken.onERC721Received(operator, from, id, data);
-    }
+    //    function onERC721Received(
+    //        address operator,
+    //        address from,
+    //        uint256 id,
+    //        bytes calldata data
+    //    ) public override returns (bytes4) {
+    //        if (msg.sender == address(gameToken)) {
+    //            uint256 estateId = abi.decode(data, (uint256));
+    //            _addGameWithTemplateToEstate(estateId, id);
+    //        }
+    //        // TODO: emit something.
+    //        return EstateBaseToken.onERC721Received(operator, from, id, data);
+    //    }
 
     // TODO: Is is ok to throw here ? Do we get only 10000 gas ? What about reentrancy attacks to Land, Game or us ?
-    function onERC721BatchReceived(
-        address operator,
-        address from,
-        uint256[] calldata ids,
-        bytes calldata data
-    ) public override returns (bytes4) {
-        if (msg.sender == address(gameToken)) {
-            uint256[] memory estateIds = abi.decode(data, (uint256[]));
-            for (uint256 i; i < ids.length; i++) {
-                _addGameWithTemplateToEstate(estateIds[i], ids[i]);
-            }
-        }
-        // TODO: emit something.
-        return EstateBaseToken.onERC721BatchReceived(operator, from, ids, data);
-    }
+    //    function onERC721BatchReceived(
+    //        address operator,
+    //        address from,
+    //        uint256[] calldata ids,
+    //        bytes calldata data
+    //    ) public override returns (bytes4) {
+    //        if (msg.sender == address(gameToken)) {
+    //            uint256[] memory estateIds = abi.decode(data, (uint256[]));
+    //            for (uint256 i; i < ids.length; i++) {
+    //                _addGameWithTemplateToEstate(estateIds[i], ids[i]);
+    //            }
+    //        }
+    //        // TODO: emit something.
+    //        return EstateBaseToken.onERC721BatchReceived(operator, from, ids, data);
+    //    }
 
     // TODO: The creation of estate must be changed to use this function if we decide so, right now is _addGamesToEstate !!!
-    function _addGameWithTemplateToEstate(uint256 estateId, uint256 gameId) internal {
-        // TODO: We can also create estates here, right now we assume that the estate exists.
-        require(estateId != 0, "invalid estateId");
-        // TODO: Somebody can add a game to someone else estate!!!
-        uint256 storageId = _storageId(estateId);
-        require(games[storageId].createGame(gameId), "game already exists");
-        TileWithCoordLib.TileWithCoord[] memory template = gameToken.getTemplate(gameId);
-        MapLib.Map storage map = games[storageId].getMap(gameId);
-        freeLands[storageId].moveTo(map, template);
-    }
+    //    function _addGameWithTemplateToEstate(uint256 estateId, uint256 gameId) internal {
+    //        // TODO: We can also create estates here, right now we assume that the estate exists.
+    //        require(estateId != 0, "invalid estateId");
+    //        // TODO: Somebody can add a game to someone else estate!!!
+    //        uint256 storageId = _storageId(estateId);
+    //        require(games[storageId].createGame(gameId), "game already exists");
+    //        TileWithCoordLib.TileWithCoord[] memory template = gameToken.getTemplate(gameId);
+    //        MapLib.Map storage map = games[storageId].getMap(gameId);
+    //        freeLands[storageId].moveTo(map, template);
+    //    }
 
     function _addGamesToEstate(
         address from,

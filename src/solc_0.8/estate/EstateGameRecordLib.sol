@@ -69,5 +69,4 @@ library EstateGameRecordLib {
     function getGameIdAt(Games storage self, uint256 idx) public view returns (uint256) {
         return self.values[idx].gameId;
     }
-
 }
